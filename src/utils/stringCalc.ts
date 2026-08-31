@@ -1,7 +1,7 @@
 import type { StringInput, StringResult } from '../types'
 
 export function calcString(input: StringInput): StringResult {
-  const { voc, coefTemp, isc, tempMin, vMaxInverter, iMaxMppt, numModules } = input
+  const { voc, coefTemp, isc, tempMin, vMaxInverter, iMaxMppt, numModules, numStrings } = input
 
   const vocCorrected = voc * (1 + (coefTemp / 100) * (tempMin - 25))
   const stringVoltage = vocCorrected * numModules
@@ -9,10 +9,10 @@ export function calcString(input: StringInput): StringResult {
   const voltageOk = stringVoltage <= vMaxInverter
   const voltageMarginPct = ((vMaxInverter - stringVoltage) / vMaxInverter) * 100
 
-  const currentOk = isc <= iMaxMppt
-  const currentMarginPct = ((iMaxMppt - isc) / iMaxMppt) * 100
+  const totalMpptCurrent = isc * numStrings
+  const currentOk = totalMpptCurrent <= iMaxMppt
+  const currentMarginPct = ((iMaxMppt - totalMpptCurrent) / iMaxMppt) * 100
 
-  // Max modules that still fit within inverter voltage
   const numModulesMax = Math.floor(vMaxInverter / vocCorrected)
 
   return {
@@ -20,6 +20,7 @@ export function calcString(input: StringInput): StringResult {
     stringVoltage,
     voltageOk,
     voltageMarginPct,
+    totalMpptCurrent,
     currentOk,
     currentMarginPct,
     ok: voltageOk && currentOk,
@@ -28,5 +29,5 @@ export function calcString(input: StringInput): StringResult {
 }
 
 export function stringLabel(input: StringInput, result: StringResult): string {
-  return `${input.numModules}s | Voc=${input.voc}V | ${result.ok ? 'OK' : 'FALHA'}`
+  return `${input.numModules}s×${input.numStrings}p | Voc=${input.voc}V | ${result.ok ? 'OK' : 'FALHA'}`
 }

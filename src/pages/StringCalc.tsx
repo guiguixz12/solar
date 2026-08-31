@@ -14,6 +14,7 @@ const DEFAULT: StringInput = {
   vMaxInverter: 1000,
   iMaxMppt: 15,
   numModules: 20,
+  numStrings: 1,
 }
 
 function pct(n: number) {
@@ -66,18 +67,28 @@ export default function StringCalc() {
 
         {result && (
           <div ref={resultRef} className="flex flex-col gap-3">
+            {/* Voltage */}
             <ResultBadge
               ok={result.voltageOk}
               label="Tensão da String"
               value={`${result.stringVoltage.toFixed(1)} V`}
-              sub={`Voc corrigida ${result.vocCorrected.toFixed(2)} V/módulo · margem ${pct(result.voltageMarginPct)} · máx ${input.numModules > 0 ? result.numModulesMax : '—'} módulos`}
+              sub={`Voc corrigida ${result.vocCorrected.toFixed(2)} V/módulo · margem ${pct(result.voltageMarginPct)} · máx ${result.numModulesMax} módulos`}
             />
+
+            {/* Per-string current — informational only */}
+            <div className="rounded-2xl border border-slate-700 bg-slate-800/60 px-4 py-3 flex items-center justify-between">
+              <span className="text-slate-400 text-sm">Corrente por string (Isc)</span>
+              <span className="text-slate-200 font-mono font-bold text-lg tabular-nums">{input.isc.toFixed(2)} A</span>
+            </div>
+
+            {/* Total MPPT current — validated */}
             <ResultBadge
               ok={result.currentOk}
-              label="Corrente Isc"
-              value={`${input.isc.toFixed(2)} A`}
-              sub={`Máx MPPT ${input.iMaxMppt} A · margem ${pct(result.currentMarginPct)}`}
+              label={`Corrente total no MPPT${input.numStrings > 1 ? ` (${input.numStrings} strings)` : ''}`}
+              value={`${result.totalMpptCurrent.toFixed(2)} A`}
+              sub={`Limite por MPPT: ${input.iMaxMppt} A · margem ${pct(result.currentMarginPct)}${input.numStrings > 1 ? ' · limite é por MPPT, não pelo inversor inteiro' : ''}`}
             />
+
             <div className={`rounded-2xl border-2 p-4 text-center font-bold text-2xl ${result.ok ? 'border-emerald-500 text-emerald-300 bg-emerald-900/40' : 'border-red-500 text-red-300 bg-red-900/40'}`}>
               {result.ok ? '✓ STRING OK' : '✗ STRING INVÁLIDA'}
             </div>
@@ -149,7 +160,7 @@ export default function StringCalc() {
             step="0.1"
             value={input.iMaxMppt}
             onChange={(e) => set('iMaxMppt', e.target.value)}
-            help="Corrente DC máxima que cada entrada MPPT do inversor suporta. O Isc do painel não pode ultrapassar este valor. Está na ficha técnica do inversor."
+            help="Corrente DC máxima que cada entrada MPPT do inversor suporta. Este limite é por MPPT individual — se o inversor tiver 2 MPPTs, cada um tem o seu próprio limite. Está na ficha técnica do inversor."
           />
         </div>
 
@@ -164,6 +175,16 @@ export default function StringCalc() {
             value={input.numModules}
             onChange={(e) => set('numModules', e.target.value)}
             help="Quantidade de painéis ligados em série nesta string. A tensão da string é Voc × número de módulos — esse é o valor que não pode exceder a tensão máxima do inversor."
+          />
+          <Field
+            label="Strings em paralelo no mesmo MPPT"
+            unit="un"
+            type="number"
+            step="1"
+            min="1"
+            value={input.numStrings}
+            onChange={(e) => set('numStrings', e.target.value)}
+            help="Quantas strings estão ligadas em paralelo na mesma entrada MPPT. A corrente total no MPPT é Isc × este número — não pode exceder a corrente máxima por MPPT do inversor."
           />
         </div>
 

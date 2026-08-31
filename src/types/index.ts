@@ -8,6 +8,7 @@ export interface StringInput {
   vMaxInverter: number
   iMaxMppt: number
   numModules: number
+  numStrings: number
 }
 
 export interface StringResult {
@@ -15,6 +16,7 @@ export interface StringResult {
   stringVoltage: number
   voltageOk: boolean
   voltageMarginPct: number
+  totalMpptCurrent: number
   currentOk: boolean
   currentMarginPct: number
   ok: boolean
