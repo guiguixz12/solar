@@ -109,37 +109,6 @@ export default function CableCalc() {
       <div className="flex flex-col gap-5 pt-2">
         <h2 className="text-white font-bold text-xl">Dimensionamento de Cabo</h2>
 
-        {result && (
-          <div ref={resultRef} className="flex flex-col gap-3">
-            <ResultBadge
-              ok
-              label="Seção mínima comercial"
-              value={`${result.sectionCommercial} mm²`}
-              sub={`Seção calculada ${result.sectionCalc.toFixed(2)} mm² · arredondada para a série comercial acima`}
-            />
-            <ResultBadge
-              ok={result.dropPct <= input.maxDropPct}
-              warn={result.dropPct > input.maxDropPct * 0.9 && result.dropPct <= input.maxDropPct}
-              label="Queda de tensão real"
-              value={`${result.dropPct.toFixed(2)}%`}
-              sub={`${result.dropV.toFixed(2)} V — limite REBT ${input.maxDropPct}%`}
-            />
-            <ResultBadge
-              ok={result.ampacityOk}
-              label="Ampacidade"
-              value={`${result.ampacityMax} A máx`}
-              sub={result.ampacityMax > 0 ? `Circuito ${input.current} A — ${result.ampacityOk ? 'dentro da capacidade' : 'EXCEDE — aumentar seção'}` : 'Sem dado para este material'}
-            />
-            <button
-              onClick={save}
-              disabled={saved}
-              className="w-full rounded-xl bg-slate-700 hover:bg-slate-600 disabled:opacity-40 text-slate-200 font-medium py-3 active:scale-95 transition-all text-sm"
-            >
-              {saved ? '✓ Salvo no histórico' : 'Salvar no histórico'}
-            </button>
-          </div>
-        )}
-
         <div className="bg-slate-800/50 rounded-2xl p-4 flex flex-col gap-4 border border-slate-700">
           <p className="text-slate-400 text-xs uppercase tracking-wider font-semibold">Parâmetros do Circuito</p>
           <Field
@@ -222,6 +191,37 @@ export default function CableCalc() {
         >
           Calcular
         </button>
+
+        {result && (
+          <div ref={resultRef} className="flex flex-col gap-3">
+            <ResultBadge
+              ok
+              label="Seção mínima comercial"
+              value={`${result.sectionCommercial} mm²`}
+              sub={`Seção calculada ${result.sectionCalc.toFixed(2)} mm² · arredondada para a série comercial acima`}
+            />
+            <ResultBadge
+              ok={result.dropPct <= input.maxDropPct}
+              warn={result.dropPct > input.maxDropPct * 0.9 && result.dropPct <= input.maxDropPct}
+              label="Queda de tensão real"
+              value={`${result.dropPct.toFixed(2)}%`}
+              sub={`${result.dropV.toFixed(2)} V — limite REBT ${input.maxDropPct}%`}
+            />
+            <ResultBadge
+              ok={result.ampacityOk}
+              label="Ampacidade"
+              value={`${result.ampacityMax} A máx`}
+              sub={result.ampacityMax > 0 ? `Circuito ${input.current} A — ${result.ampacityOk ? 'dentro da capacidade' : 'EXCEDE — aumentar seção'}` : 'Sem dado para este material'}
+            />
+            <button
+              onClick={save}
+              disabled={saved}
+              className="w-full rounded-xl bg-slate-700 hover:bg-slate-600 disabled:opacity-40 text-slate-200 font-medium py-3 active:scale-95 transition-all text-sm"
+            >
+              {saved ? '✓ Salvo no histórico' : 'Salvar no histórico'}
+            </button>
+          </div>
+        )}
 
         <button
           onClick={() => setShowTable((v) => !v)}

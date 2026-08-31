@@ -69,56 +69,6 @@ export default function StringCalc() {
         <StepBar current={0} />
         <h2 className="text-white font-bold text-xl">Dimensionamento de String</h2>
 
-        {result && (
-          <div ref={resultRef} className="flex flex-col gap-3">
-            {/* Voltage */}
-            <ResultBadge
-              ok={result.voltageOk}
-              label="Tensão da String"
-              value={`${result.stringVoltage.toFixed(1)} V`}
-              sub={`Voc corrigida ${result.vocCorrected.toFixed(2)} V/módulo · margem ${pct(result.voltageMarginPct)} · máx ${result.numModulesMax} módulos`}
-            />
-
-            {/* Per-string current — informational only */}
-            <div className="rounded-2xl border border-slate-700 bg-slate-800/60 px-4 py-3 flex items-center justify-between">
-              <span className="text-slate-400 text-sm">Corrente por string (Isc)</span>
-              <span className="text-slate-200 font-mono font-bold text-lg tabular-nums">{input.isc.toFixed(2)} A</span>
-            </div>
-
-            {/* Total MPPT current — validated */}
-            <ResultBadge
-              ok={result.currentOk}
-              label={`Corrente total no MPPT${input.numStrings > 1 ? ` (${input.numStrings} strings)` : ''}`}
-              value={`${result.totalMpptCurrent.toFixed(2)} A`}
-              sub={`Limite por MPPT: ${input.iMaxMppt} A · margem ${pct(result.currentMarginPct)}${input.numStrings > 1 ? ' · limite é por MPPT, não pelo inversor inteiro' : ''}`}
-            />
-
-            <div className={`rounded-2xl border-2 p-4 text-center font-bold text-2xl ${result.ok ? 'border-emerald-500 text-emerald-300 bg-emerald-900/40' : 'border-red-500 text-red-300 bg-red-900/40'}`}>
-              {result.ok ? '✓ STRING OK' : '✗ STRING INVÁLIDA'}
-            </div>
-
-            {result.ok && (
-              <button
-                onClick={() => navigate('/install/config', { state: { stringInput: input, stringResult: result } })}
-                className="w-full rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-lg py-4 active:scale-95 transition-all shadow-lg shadow-emerald-900/30 flex items-center justify-center gap-2"
-              >
-                Continuar para configuração
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M9 18l6-6-6-6"/>
-                </svg>
-              </button>
-            )}
-
-            <button
-              onClick={save}
-              disabled={saved}
-              className="w-full rounded-xl bg-slate-700 hover:bg-slate-600 disabled:opacity-40 text-slate-200 font-medium py-3 active:scale-95 transition-all text-sm"
-            >
-              {saved ? '✓ Salvo no histórico' : 'Salvar só a string no histórico'}
-            </button>
-          </div>
-        )}
-
         <div className="bg-slate-800/50 rounded-2xl p-4 flex flex-col gap-4 border border-slate-700">
           <p className="text-slate-400 text-xs uppercase tracking-wider font-semibold">Dados do Painel (datasheet)</p>
           <Field
@@ -211,6 +161,48 @@ export default function StringCalc() {
         >
           Calcular
         </button>
+
+        {result && (
+          <div ref={resultRef} className="flex flex-col gap-3">
+            <ResultBadge
+              ok={result.voltageOk}
+              label="Tensão da String"
+              value={`${result.stringVoltage.toFixed(1)} V`}
+              sub={`Voc corrigida ${result.vocCorrected.toFixed(2)} V/módulo · margem ${pct(result.voltageMarginPct)} · máx ${result.numModulesMax} módulos`}
+            />
+            <div className="rounded-2xl border border-slate-700 bg-slate-800/60 px-4 py-3 flex items-center justify-between">
+              <span className="text-slate-400 text-sm">Corrente por string (Isc)</span>
+              <span className="text-slate-200 font-mono font-bold text-lg tabular-nums">{input.isc.toFixed(2)} A</span>
+            </div>
+            <ResultBadge
+              ok={result.currentOk}
+              label={`Corrente total no MPPT${input.numStrings > 1 ? ` (${input.numStrings} strings)` : ''}`}
+              value={`${result.totalMpptCurrent.toFixed(2)} A`}
+              sub={`Limite por MPPT: ${input.iMaxMppt} A · margem ${pct(result.currentMarginPct)}${input.numStrings > 1 ? ' · limite é por MPPT, não pelo inversor inteiro' : ''}`}
+            />
+            <div className={`rounded-2xl border-2 p-4 text-center font-bold text-2xl ${result.ok ? 'border-emerald-500 text-emerald-300 bg-emerald-900/40' : 'border-red-500 text-red-300 bg-red-900/40'}`}>
+              {result.ok ? '✓ STRING OK' : '✗ STRING INVÁLIDA'}
+            </div>
+            {result.ok && (
+              <button
+                onClick={() => navigate('/install/config', { state: { stringInput: input, stringResult: result } })}
+                className="w-full rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-lg py-4 active:scale-95 transition-all shadow-lg shadow-emerald-900/30 flex items-center justify-center gap-2"
+              >
+                Continuar para configuração
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 18l6-6-6-6"/>
+                </svg>
+              </button>
+            )}
+            <button
+              onClick={save}
+              disabled={saved}
+              className="w-full rounded-xl bg-slate-700 hover:bg-slate-600 disabled:opacity-40 text-slate-200 font-medium py-3 active:scale-95 transition-all text-sm"
+            >
+              {saved ? '✓ Salvo no histórico' : 'Salvar só a string no histórico'}
+            </button>
+          </div>
+        )}
       </div>
     </Layout>
   )
