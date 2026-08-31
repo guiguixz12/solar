@@ -3,6 +3,7 @@ import Layout from '../components/Layout'
 import Field from '../components/Field'
 import ResultBadge from '../components/ResultBadge'
 import AmperageTable from '../components/AmperageTable'
+import Tooltip from '../components/Tooltip'
 import { calcCable, cableLabel } from '../utils/cableCalc'
 import { saveEntry } from '../utils/storage'
 import type { CableInput, CableResult, SystemVoltage, SystemType, ConductorMaterial } from '../types'
@@ -21,12 +22,16 @@ type SelectProps = {
   value: string
   onChange: (v: string) => void
   options: { value: string; label: string }[]
+  help?: string
 }
 
-function SelectField({ label, value, onChange, options }: SelectProps) {
+function SelectField({ label, value, onChange, options, help }: SelectProps) {
   return (
     <label className="flex flex-col gap-1.5">
-      <span className="text-slate-400 text-sm font-medium">{label}</span>
+      <span className="flex items-center gap-2 text-slate-400 text-sm font-medium">
+        {label}
+        {help && <Tooltip text={help} />}
+      </span>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -97,21 +102,20 @@ export default function CableCalc() {
       <div className="flex flex-col gap-5 pt-2">
         <h2 className="text-white font-bold text-xl">Dimensionamento de Cabo</h2>
 
-        {/* Results */}
         {result && (
           <div className="flex flex-col gap-3">
             <ResultBadge
               ok
               label="Seção mínima comercial"
               value={`${result.sectionCommercial} mm²`}
-              sub={`Seção calculada ${result.sectionCalc.toFixed(2)} mm²`}
+              sub={`Seção calculada ${result.sectionCalc.toFixed(2)} mm² · arredondada para a série comercial acima`}
             />
             <ResultBadge
               ok={result.dropPct <= input.maxDropPct}
               warn={result.dropPct > input.maxDropPct * 0.9 && result.dropPct <= input.maxDropPct}
               label="Queda de tensão real"
               value={`${result.dropPct.toFixed(2)}%`}
-              sub={`${result.dropV.toFixed(2)} V — limite ${input.maxDropPct}%`}
+              sub={`${result.dropV.toFixed(2)} V — limite REBT ${input.maxDropPct}%`}
             />
             <ResultBadge
               ok={result.ampacityOk}
@@ -129,16 +133,34 @@ export default function CableCalc() {
           </div>
         )}
 
-        {/* Inputs */}
         <div className="bg-slate-800/50 rounded-2xl p-4 flex flex-col gap-4 border border-slate-700">
           <p className="text-slate-400 text-xs uppercase tracking-wider font-semibold">Parâmetros do Circuito</p>
-          <Field label="Corrente do circuito" unit="A" type="number" step="0.1" min="0" value={input.current} onChange={(e) => setNum('current', e.target.value)} />
-          <Field label="Distância (ida)" unit="m" type="number" step="0.5" min="0" value={input.distance} onChange={(e) => setNum('distance', e.target.value)} />
+          <Field
+            label="Corrente do circuito"
+            unit="A"
+            type="number"
+            step="0.1"
+            min="0"
+            value={input.current}
+            onChange={(e) => setNum('current', e.target.value)}
+            help="Corrente que vai circular no cabo. Para strings DC use o Isc do painel. Para circuitos AC use a corrente nominal da carga."
+          />
+          <Field
+            label="Distância (ida)"
+            unit="m"
+            type="number"
+            step="0.5"
+            min="0"
+            value={input.distance}
+            onChange={(e) => setNum('distance', e.target.value)}
+            help="Comprimento do cabo de um só lado — não some a volta. A fórmula já multiplica por 2 internamente para contar o circuito completo."
+          />
           <SelectField
             label="Tensão do sistema"
             value={input.systemVoltage}
             onChange={handleVoltageChange}
             options={voltageOptions}
+            help="Tensão nominal do circuito. Escolha DC para sistemas fotovoltaicos e baterias. 230 V AC para monofásico, 400 V AC para trifásico (rede)."
           />
           {!isDC && (
             <SelectField
@@ -149,6 +171,7 @@ export default function CableCalc() {
                 { value: 'AC1', label: 'Monofásico (1F)' },
                 { value: 'AC3', label: 'Trifásico (3F)' },
               ]}
+              help="Monofásico: dois condutores (fase + neutro), usado em tomadas e cargas domésticas. Trifásico: três fases, usado em motores e cargas industriais."
             />
           )}
           <Field
@@ -160,11 +183,15 @@ export default function CableCalc() {
             max="10"
             value={input.maxDropPct}
             onChange={(e) => setNum('maxDropPct', e.target.value)}
+            help="Limite de queda de tensão segundo a norma REBT (Espanha). Para circuitos DC: 1,5%. Para circuitos AC: 3% (ITC-BT-19). Pode ajustar se o projeto exigir menor perda."
           />
         </div>
 
         <div className="bg-slate-800/50 rounded-2xl p-4 flex flex-col gap-4 border border-slate-700">
-          <p className="text-slate-400 text-xs uppercase tracking-wider font-semibold">Material do Condutor</p>
+          <p className="flex items-center gap-2 text-slate-400 text-xs uppercase tracking-wider font-semibold">
+            Material do Condutor
+            <Tooltip text="Cobre (κ=56) tem maior condutividade — seção menor para a mesma corrente. Alumínio (κ=35) é mais barato e mais leve, mas precisa de seção maior. Para instalações FV o cobre é o mais comum." />
+          </p>
           <div className="grid grid-cols-2 gap-3">
             {(['copper', 'aluminum'] as ConductorMaterial[]).map((m) => (
               <button
@@ -189,7 +216,6 @@ export default function CableCalc() {
           Calcular
         </button>
 
-        {/* Ampacity table toggle */}
         <button
           onClick={() => setShowTable((v) => !v)}
           className="text-slate-400 hover:text-slate-200 text-sm underline underline-offset-2 transition-colors py-1"

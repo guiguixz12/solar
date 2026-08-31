@@ -57,7 +57,6 @@ export default function StringCalc() {
       <div className="flex flex-col gap-5 pt-2">
         <h2 className="text-white font-bold text-xl">Dimensionamento de String</h2>
 
-        {/* Results — shown at top when calculated */}
         {result && (
           <div className="flex flex-col gap-3">
             <ResultBadge
@@ -85,24 +84,80 @@ export default function StringCalc() {
           </div>
         )}
 
-        {/* Inputs */}
         <div className="bg-slate-800/50 rounded-2xl p-4 flex flex-col gap-4 border border-slate-700">
           <p className="text-slate-400 text-xs uppercase tracking-wider font-semibold">Dados do Painel (datasheet)</p>
-          <Field label="Voc" unit="V" type="number" step="0.1" value={input.voc} onChange={(e) => set('voc', e.target.value)} />
-          <Field label="Coeficiente de temperatura de Voc" unit="%/°C" type="number" step="0.01" value={input.coefTemp} onChange={(e) => set('coefTemp', e.target.value)} />
-          <Field label="Isc" unit="A" type="number" step="0.01" value={input.isc} onChange={(e) => set('isc', e.target.value)} />
+          <Field
+            label="Voc"
+            unit="V"
+            type="number"
+            step="0.1"
+            value={input.voc}
+            onChange={(e) => set('voc', e.target.value)}
+            help="Tensão de circuito aberto do painel em condições padrão (STC, 25 °C). Encontre na ficha técnica do painel — normalmente entre 30 V e 50 V."
+          />
+          <Field
+            label="Coeficiente de temperatura de Voc"
+            unit="%/°C"
+            type="number"
+            step="0.01"
+            value={input.coefTemp}
+            onChange={(e) => set('coefTemp', e.target.value)}
+            help="Variação do Voc por grau Celsius. Valor negativo (ex: -0,29 %/°C) — quanto mais frio, maior o Voc. Está na ficha técnica do painel."
+          />
+          <Field
+            label="Isc"
+            unit="A"
+            type="number"
+            step="0.01"
+            value={input.isc}
+            onChange={(e) => set('isc', e.target.value)}
+            help="Corrente de curto-circuito do painel em STC. É a corrente máxima que o painel pode gerar. Está na ficha técnica."
+          />
         </div>
 
         <div className="bg-slate-800/50 rounded-2xl p-4 flex flex-col gap-4 border border-slate-700">
           <p className="text-slate-400 text-xs uppercase tracking-wider font-semibold">Local e Inversor</p>
-          <Field label="Temperatura mínima do local" unit="°C" type="number" step="1" value={input.tempMin} onChange={(e) => set('tempMin', e.target.value)} />
-          <Field label="Tensão máxima do inversor" unit="V" type="number" step="1" value={input.vMaxInverter} onChange={(e) => set('vMaxInverter', e.target.value)} />
-          <Field label="Corrente máxima por MPPT" unit="A" type="number" step="0.1" value={input.iMaxMppt} onChange={(e) => set('iMaxMppt', e.target.value)} />
+          <Field
+            label="Temperatura mínima do local"
+            unit="°C"
+            type="number"
+            step="1"
+            value={input.tempMin}
+            onChange={(e) => set('tempMin', e.target.value)}
+            help="Temperatura mínima histórica do local da instalação. Quanto mais frio, maior fica o Voc — e maior o risco de danificar o inversor. Use -10 °C se não souber."
+          />
+          <Field
+            label="Tensão máxima do inversor"
+            unit="V"
+            type="number"
+            step="1"
+            value={input.vMaxInverter}
+            onChange={(e) => set('vMaxInverter', e.target.value)}
+            help="Tensão DC máxima admissível na entrada do inversor. Nunca pode ser ultrapassada — pode destruir o inversor. Está na ficha técnica do inversor (ex: 1000 V ou 1500 V)."
+          />
+          <Field
+            label="Corrente máxima por MPPT"
+            unit="A"
+            type="number"
+            step="0.1"
+            value={input.iMaxMppt}
+            onChange={(e) => set('iMaxMppt', e.target.value)}
+            help="Corrente DC máxima que cada entrada MPPT do inversor suporta. O Isc do painel não pode ultrapassar este valor. Está na ficha técnica do inversor."
+          />
         </div>
 
         <div className="bg-slate-800/50 rounded-2xl p-4 flex flex-col gap-4 border border-slate-700">
           <p className="text-slate-400 text-xs uppercase tracking-wider font-semibold">String a testar</p>
-          <Field label="Número de módulos em série" unit="un" type="number" step="1" min="1" value={input.numModules} onChange={(e) => set('numModules', e.target.value)} />
+          <Field
+            label="Número de módulos em série"
+            unit="un"
+            type="number"
+            step="1"
+            min="1"
+            value={input.numModules}
+            onChange={(e) => set('numModules', e.target.value)}
+            help="Quantidade de painéis ligados em série nesta string. A tensão da string é Voc × número de módulos — esse é o valor que não pode exceder a tensão máxima do inversor."
+          />
         </div>
 
         <button
