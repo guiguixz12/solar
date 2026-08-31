@@ -249,7 +249,7 @@ export default function StringCalc() {
             </div>
             {result.ok && (
               <button
-                onClick={() => navigate('/install/config', { state: { stringInput: input, stringResult: result } })}
+                onClick={() => navigate('/install/config', { state: { stringInput: input, stringResult: result, selectedModelId } })}
                 className="w-full rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-lg py-4 active:scale-95 transition-all shadow-lg shadow-emerald-900/30 flex items-center justify-center gap-2"
               >
                 Continuar para configuração
