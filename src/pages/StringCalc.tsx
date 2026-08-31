@@ -191,7 +191,7 @@ export default function StringCalc() {
             step="0.1"
             value={input.iMaxMppt}
             onChange={(e) => set('iMaxMppt', e.target.value)}
-            help="Corrente DC máxima que cada entrada MPPT do inversor suporta. Este limite é por MPPT individual — se o inversor tiver 2 MPPTs, cada um tem o seu próprio limite. Está na ficha técnica do inversor."
+            help="Corrente DC máxima que cada entrada MPPT suporta. É o limite TOTAL que entra naquela entrada — se tiver 3 strings em paralelo no mesmo MPPT, a corrente total (Isc × 3) é o que conta contra este limite. Está na ficha técnica do inversor, por MPPT, não pelo inversor inteiro."
           />
         </div>
 
@@ -238,12 +238,47 @@ export default function StringCalc() {
               <span className="text-slate-400 text-sm">Corrente por string (Isc)</span>
               <span className="text-slate-200 font-mono font-bold text-lg tabular-nums">{input.isc.toFixed(2)} A</span>
             </div>
-            <ResultBadge
-              ok={result.currentOk}
-              label={`Corrente total no MPPT${input.numStrings > 1 ? ` (${input.numStrings} strings)` : ''}`}
-              value={`${result.totalMpptCurrent.toFixed(2)} A`}
-              sub={`Limite por MPPT: ${input.iMaxMppt} A · margem ${pct(result.currentMarginPct)}${input.numStrings > 1 ? ' · limite é por MPPT, não pelo inversor inteiro' : ''}`}
-            />
+            {result.currentOk ? (
+              <ResultBadge
+                ok={true}
+                label={`Corrente total no MPPT${input.numStrings > 1 ? ` (${input.numStrings} strings)` : ''}`}
+                value={`${result.totalMpptCurrent.toFixed(2)} A`}
+                sub={`Limite por MPPT: ${input.iMaxMppt} A · margem ${pct(result.currentMarginPct)}`}
+              />
+            ) : (
+              <div className="animate-pulse rounded-2xl border-2 border-red-500 bg-red-950/60 p-4 flex flex-col gap-3 shadow-lg shadow-red-900/50">
+                <div className="flex items-center gap-2">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-red-400 shrink-0">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                  </svg>
+                  <span className="text-red-300 font-bold text-sm uppercase tracking-wide">
+                    Corrente no MPPT excede o limite!
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-red-400 text-sm">
+                    {`Total (${input.numStrings} × Isc)`}
+                  </span>
+                  <span className="text-red-200 font-mono font-bold text-2xl tabular-nums">
+                    {result.totalMpptCurrent.toFixed(2)} A
+                  </span>
+                </div>
+                <div className="h-px bg-red-800/60" />
+                <div className="flex justify-between text-xs">
+                  <span className="text-red-400">Limite por MPPT</span>
+                  <span className="text-red-300 font-mono font-semibold">{input.iMaxMppt} A</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-red-400">Excede em</span>
+                  <span className="text-red-200 font-mono font-bold">{Math.abs(result.currentMarginPct).toFixed(1)}%</span>
+                </div>
+                <p className="text-red-400/80 text-xs leading-relaxed">
+                  Reduza o número de strings em paralelo neste MPPT ou escolha um inversor com corrente máxima por MPPT mais alta.
+                </p>
+              </div>
+            )}
             <div className={`rounded-2xl border-2 p-4 text-center font-bold text-2xl ${result.ok ? 'border-emerald-500 text-emerald-300 bg-emerald-900/40' : 'border-red-500 text-red-300 bg-red-900/40'}`}>
               {result.ok ? '✓ STRING OK' : '✗ STRING INVÁLIDA'}
             </div>
