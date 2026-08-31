@@ -12,6 +12,7 @@ interface LocationState {
   stringInput: StringInput
   stringResult: StringResult
   installOptions: InstallOptions
+  selectedModelId?: string
 }
 
 const BRAND_LABEL: Record<string, string> = { huawei: '🟧 Huawei', goodwe: '🟦 GoodWe' }
@@ -88,9 +89,28 @@ export default function InstallResult() {
         </p>
 
         <button
+          onClick={() =>
+            navigate('/install/diagram', {
+              state: {
+                stringInput,
+                stringResult,
+                installOptions,
+                selectedModelId: state.selectedModelId,
+              },
+            })
+          }
+          className="w-full rounded-2xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-lg py-5 active:scale-95 transition-all shadow-lg shadow-sky-900/30 flex items-center justify-center gap-2"
+        >
+          Ver Esquema Unifilar
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 18l6-6-6-6"/>
+          </svg>
+        </button>
+
+        <button
           onClick={handleSave}
           disabled={saved}
-          className="w-full rounded-2xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white font-bold text-lg py-5 active:scale-95 transition-all"
+          className="w-full rounded-xl bg-slate-700 hover:bg-slate-600 disabled:opacity-40 text-slate-200 font-medium py-3 active:scale-95 transition-all text-sm"
         >
           {saved ? '✓ Configuração guardada no histórico' : 'Guardar configuração no histórico'}
         </button>

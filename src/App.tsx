@@ -4,6 +4,7 @@ import StringCalc from './pages/StringCalc'
 import CableCalc from './pages/CableCalc'
 import InstallConfig from './pages/InstallConfig'
 import InstallResult from './pages/InstallResult'
+import InstallDiagram from './pages/InstallDiagram'
 import BaseEstudos from './pages/BaseEstudos'
 
 export default function App() {
@@ -15,6 +16,7 @@ export default function App() {
         <Route path="/cable" element={<CableCalc />} />
         <Route path="/install/config" element={<InstallConfig />} />
         <Route path="/install/result" element={<InstallResult />} />
+        <Route path="/install/diagram" element={<InstallDiagram />} />
         <Route path="/base-estudos" element={<BaseEstudos />} />
       </Routes>
     </BrowserRouter>

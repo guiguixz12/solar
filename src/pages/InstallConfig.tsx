@@ -6,6 +6,7 @@ import type { Brand, Phase, InstallOptions, StringInput, StringResult } from '..
 interface LocationState {
   stringInput: StringInput
   stringResult: StringResult
+  selectedModelId?: string
 }
 
 type ToggleButtonProps = {
@@ -61,7 +62,7 @@ function CheckRow({ checked, onChange, label, description }: CheckRowProps) {
   )
 }
 
-const STEP_LABELS = ['String PV', 'Configuração', 'Componentes']
+const STEP_LABELS = ['String PV', 'Configuração', 'Componentes', 'Esquema']
 
 function StepBar({ current }: { current: number }) {
   return (
@@ -106,6 +107,7 @@ export default function InstallConfig() {
         stringInput: state!.stringInput,
         stringResult: state!.stringResult,
         installOptions: opts,
+        selectedModelId: state!.selectedModelId,
       },
     })
   }
