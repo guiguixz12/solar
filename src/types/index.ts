@@ -45,6 +45,17 @@ export interface CableResult {
   ampacityMax: number
 }
 
+export type Brand = 'huawei' | 'goodwe'
+export type Phase = 'mono' | 'tri'
+
+export interface InstallOptions {
+  brand: Brand
+  phase: Phase
+  ccBox: boolean
+  caBox: boolean
+  battery: boolean
+}
+
 export interface HistoryEntry {
   id: string
   type: CalcType
@@ -52,4 +63,5 @@ export interface HistoryEntry {
   label: string
   input: StringInput | CableInput
   result: StringResult | CableResult
+  installOptions?: InstallOptions
 }

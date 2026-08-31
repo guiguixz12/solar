@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout'
 import Field from '../components/Field'
 import ResultBadge from '../components/ResultBadge'
+import { StepBar } from './InstallConfig'
 import { calcString, stringLabel } from '../utils/stringCalc'
 import { saveEntry, loadHistory } from '../utils/storage'
 import type { StringInput, StringResult } from '../types'
@@ -22,6 +24,7 @@ function pct(n: number) {
 }
 
 export default function StringCalc() {
+  const navigate = useNavigate()
   const [input, setInput] = useState<StringInput>(DEFAULT)
   const [result, setResult] = useState<StringResult | null>(null)
   const [saved, setSaved] = useState(false)
@@ -63,6 +66,7 @@ export default function StringCalc() {
   return (
     <Layout title="String PV" showBack>
       <div className="flex flex-col gap-5 pt-2">
+        <StepBar current={0} />
         <h2 className="text-white font-bold text-xl">Dimensionamento de String</h2>
 
         {result && (
@@ -92,12 +96,25 @@ export default function StringCalc() {
             <div className={`rounded-2xl border-2 p-4 text-center font-bold text-2xl ${result.ok ? 'border-emerald-500 text-emerald-300 bg-emerald-900/40' : 'border-red-500 text-red-300 bg-red-900/40'}`}>
               {result.ok ? '✓ STRING OK' : '✗ STRING INVÁLIDA'}
             </div>
+
+            {result.ok && (
+              <button
+                onClick={() => navigate('/install/config', { state: { stringInput: input, stringResult: result } })}
+                className="w-full rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-lg py-4 active:scale-95 transition-all shadow-lg shadow-emerald-900/30 flex items-center justify-center gap-2"
+              >
+                Continuar para configuração
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 18l6-6-6-6"/>
+                </svg>
+              </button>
+            )}
+
             <button
               onClick={save}
               disabled={saved}
               className="w-full rounded-xl bg-slate-700 hover:bg-slate-600 disabled:opacity-40 text-slate-200 font-medium py-3 active:scale-95 transition-all text-sm"
             >
-              {saved ? '✓ Salvo no histórico' : 'Salvar no histórico'}
+              {saved ? '✓ Salvo no histórico' : 'Salvar só a string no histórico'}
             </button>
           </div>
         )}
