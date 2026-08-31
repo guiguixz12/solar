@@ -6,7 +6,8 @@ import ResultBadge from '../components/ResultBadge'
 import { StepBar } from './InstallConfig'
 import { calcString, stringLabel } from '../utils/stringCalc'
 import { saveEntry, loadHistory } from '../utils/storage'
-import type { StringInput, StringResult } from '../types'
+import { getInvertersByBrand, getInverterById } from '../data/inverters'
+import type { StringInput, StringResult, Brand } from '../types'
 
 const DEFAULT: StringInput = {
   voc: 40.2,
@@ -29,6 +30,8 @@ export default function StringCalc() {
   const [result, setResult] = useState<StringResult | null>(null)
   const [saved, setSaved] = useState(false)
   const resultRef = useRef<HTMLDivElement>(null)
+  const [selectedBrand, setSelectedBrand] = useState<Brand | ''>('')
+  const [selectedModelId, setSelectedModelId] = useState<string>('')
 
   useEffect(() => {
     if (result) {
@@ -38,6 +41,25 @@ export default function StringCalc() {
 
   function set(field: keyof StringInput, value: string) {
     setInput((prev) => ({ ...prev, [field]: parseFloat(value) || 0 }))
+    setResult(null)
+    setSaved(false)
+  }
+
+  function handleBrandChange(brand: Brand | '') {
+    setSelectedBrand(brand)
+    setSelectedModelId('')
+  }
+
+  function handleModelChange(modelId: string) {
+    setSelectedModelId(modelId)
+    if (!modelId) return
+    const inv = getInverterById(modelId)
+    if (!inv) return
+    setInput((prev) => ({
+      ...prev,
+      vMaxInverter: inv.vMaxDC,
+      ...(inv.iMaxMppt !== null ? { iMaxMppt: inv.iMaxMppt } : {}),
+    }))
     setResult(null)
     setSaved(false)
   }
@@ -98,6 +120,48 @@ export default function StringCalc() {
             onChange={(e) => set('isc', e.target.value)}
             help="Corrente de curto-circuito do painel em STC. É a corrente máxima que o painel pode gerar. Está na ficha técnica."
           />
+        </div>
+
+        {/* Inverter pre-fill */}
+        <div className="bg-slate-800/50 rounded-2xl p-4 flex flex-col gap-4 border border-slate-700">
+          <p className="text-slate-400 text-xs uppercase tracking-wider font-semibold">Pré-preenchimento — Inversor</p>
+
+          <label className="flex flex-col gap-1.5">
+            <span className="text-slate-400 text-sm font-medium">Marca</span>
+            <select
+              value={selectedBrand}
+              onChange={(e) => handleBrandChange(e.target.value as Brand | '')}
+              className="bg-slate-800 border border-slate-700 text-white text-lg rounded-xl px-4 py-3 outline-none focus:border-amber-500 transition-colors"
+            >
+              <option value="">— Manual (sem pré-preenchimento)</option>
+              <option value="huawei">🟧 Huawei</option>
+              <option value="goodwe">🟦 GoodWe</option>
+            </select>
+          </label>
+
+          {selectedBrand && (
+            <label className="flex flex-col gap-1.5">
+              <span className="text-slate-400 text-sm font-medium">Modelo</span>
+              <select
+                value={selectedModelId}
+                onChange={(e) => handleModelChange(e.target.value)}
+                className="bg-slate-800 border border-slate-700 text-white text-lg rounded-xl px-4 py-3 outline-none focus:border-amber-500 transition-colors"
+              >
+                <option value="">— Seleccionar modelo</option>
+                {getInvertersByBrand(selectedBrand).map((inv) => (
+                  <option key={inv.id} value={inv.id}>
+                    {inv.model} ({inv.powerKW} kW)
+                    {inv.iMaxMppt === null ? ' ⚠' : ''}
+                  </option>
+                ))}
+              </select>
+              {selectedModelId && getInverterById(selectedModelId)?.iMaxMppt === null && (
+                <p className="text-yellow-400 text-xs">
+                  ⚠ Corrente máx. MPPT não confirmada — verifique no manual e ajuste o campo abaixo.
+                </p>
+              )}
+            </label>
+          )}
         </div>
 
         <div className="bg-slate-800/50 rounded-2xl p-4 flex flex-col gap-4 border border-slate-700">

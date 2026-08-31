@@ -79,6 +79,20 @@ export default function Home() {
             accent="border-sky-600 hover:border-sky-400"
             onClick={() => navigate('/cable')}
           />
+          <CalcCard
+            title="Base de Estudos"
+            description="Especificações de inversores Huawei e GoodWe, esquemas de ligação"
+            icon={
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-emerald-400">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" strokeLinecap="round" strokeLinejoin="round"/>
+                <line x1="9" y1="7" x2="15" y2="7" strokeLinecap="round"/>
+                <line x1="9" y1="11" x2="15" y2="11" strokeLinecap="round"/>
+              </svg>
+            }
+            accent="border-emerald-700 hover:border-emerald-500"
+            onClick={() => navigate('/base-estudos')}
+          />
         </div>
 
         {/* History */}
