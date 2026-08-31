@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Layout from '../components/Layout'
 import Field from '../components/Field'
 import ResultBadge from '../components/ResultBadge'
@@ -50,6 +50,13 @@ export default function CableCalc() {
   const [result, setResult] = useState<CableResult | null>(null)
   const [saved, setSaved] = useState(false)
   const [showTable, setShowTable] = useState(false)
+  const resultRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (result) {
+      resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [result])
 
   function set<K extends keyof CableInput>(field: K, value: CableInput[K]) {
     setInput((prev) => ({ ...prev, [field]: value }))
@@ -103,7 +110,7 @@ export default function CableCalc() {
         <h2 className="text-white font-bold text-xl">Dimensionamento de Cabo</h2>
 
         {result && (
-          <div className="flex flex-col gap-3">
+          <div ref={resultRef} className="flex flex-col gap-3">
             <ResultBadge
               ok
               label="Seção mínima comercial"

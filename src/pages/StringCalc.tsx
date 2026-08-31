@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Layout from '../components/Layout'
 import Field from '../components/Field'
 import ResultBadge from '../components/ResultBadge'
@@ -24,6 +24,13 @@ export default function StringCalc() {
   const [input, setInput] = useState<StringInput>(DEFAULT)
   const [result, setResult] = useState<StringResult | null>(null)
   const [saved, setSaved] = useState(false)
+  const resultRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (result) {
+      resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [result])
 
   function set(field: keyof StringInput, value: string) {
     setInput((prev) => ({ ...prev, [field]: parseFloat(value) || 0 }))
@@ -58,7 +65,7 @@ export default function StringCalc() {
         <h2 className="text-white font-bold text-xl">Dimensionamento de String</h2>
 
         {result && (
-          <div className="flex flex-col gap-3">
+          <div ref={resultRef} className="flex flex-col gap-3">
             <ResultBadge
               ok={result.voltageOk}
               label="Tensão da String"
